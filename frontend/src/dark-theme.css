@@ -1,0 +1,6 @@
+/* This file was created to resolve an import error. 
+You can add your dark theme styles here. */
+body.dark-mode {
+    background-color: #121212;
+    color: #ffffff;
+}

@@ -34,6 +34,9 @@ const SeriesList = () => {
             <p><strong>Genre:</strong> {s.genre.join(', ')}</p>
             <p><strong>Year:</strong> {s.releaseYear}</p>
             <p><strong>IMDB:</strong> {s.rating?.imdb || 'N/A'}</p>
+            <p><strong>Total Reviews:</strong> {s.totalReviews || 0}</p>
+            <p><strong>Avg Rating:</strong> {s.averageRating ? s.averageRating.toFixed(1) : 'N/A'}</p>
+            <p><strong>Positive:</strong> {s.positiveReviewCount || 0}, Neutral: {s.neutralReviewCount||0}, Negative: {s.negativeReviewCount||0}</p>
             <p>{s.description}</p>
             
             {s.insights && (

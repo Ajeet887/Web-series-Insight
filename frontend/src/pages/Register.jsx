@@ -3,13 +3,14 @@ import { useAuth } from '../hooks/useAuth'
 import { useNavigate } from 'react-router-dom'
 import './Login.css'
 
-const Login = () => {
+const Register = () => {
+  const [name, setName] = useState('')
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [error, setError] = useState('')
   const [loading, setLoading] = useState(false)
-  
-  const { login } = useAuth()
+
+  const { register } = useAuth()
   const navigate = useNavigate()
 
   const handleSubmit = async (e) => {
@@ -18,12 +19,11 @@ const Login = () => {
     setError('')
 
     try {
-      await login(email, password)
+      await register({ name, email, password })
       navigate('/dashboard')
     } catch (err) {
-      setError(err.response?.data?.message || 'Login failed')
-    }
-    finally {
+      setError(err.response?.data?.message || 'Registration failed')
+    } finally {
       setLoading(false)
     }
   }
@@ -31,15 +31,20 @@ const Login = () => {
   return (
     <div className="login-page">
       <div className="login-card">
-        <h2>Login</h2>
-        
-        {error && (
-          <div className="error-message">
-            {error}
-          </div>
-        )}
-        
+        <h2>Register</h2>
+
+        {error && <div className="error-message">{error}</div>}
+
         <form onSubmit={handleSubmit}>
+          <div className="form-group">
+            <label>Name:</label>
+            <input
+              type="text"
+              value={name}
+              onChange={(e) => setName(e.target.value)}
+              required
+            />
+          </div>
           <div className="form-group">
             <label>Email:</label>
             <input
@@ -49,7 +54,6 @@ const Login = () => {
               required
             />
           </div>
-          
           <div className="form-group">
             <label>Password:</label>
             <input
@@ -57,23 +61,16 @@ const Login = () => {
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               required
+              minLength={6}
             />
           </div>
-          
-          <button 
-            type="submit" 
-            className="login-button"
-            disabled={loading}
-          >
-            {loading ? 'Logging in...' : 'Login'}
+          <button type="submit" className="login-button" disabled={loading}>
+            {loading ? 'Registering...' : 'Register'}
           </button>
         </form>
-        <p className="register-link">
-          Don’t have an account? <a href="/register">Register here</a>
-        </p>
       </div>
     </div>
   )
 }
 
-export default Login
+export default Register

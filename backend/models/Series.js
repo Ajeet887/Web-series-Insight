@@ -17,6 +17,26 @@ const seriesSchema = new mongoose.Schema({
   cast: [String],
   rating: Number,
   episodes: Number,
+  totalReviews: {
+    type: Number,
+    default: 0
+  },
+  averageRating: {
+    type: Number,
+    default: 0
+  },
+  positiveReviewCount: {
+    type: Number,
+    default: 0
+  },
+  neutralReviewCount: {
+    type: Number,
+    default: 0
+  },
+  negativeReviewCount: {
+    type: Number,
+    default: 0
+  },
   reviews: [{
     userId: mongoose.Schema.Types.ObjectId,
     rating: Number,

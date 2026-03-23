@@ -106,7 +106,49 @@ router.get('/search/:query', async (req, res) => {
 router.get('/', async (req, res) => {
   try {
     const series = await Series.find().select('-reviews')
-    res.json(series)
+
+    // Ensure computed review stats are available for older documents
+    const enriched = series.map(s => ({
+      ...s.toObject(),
+      totalReviews: s.totalReviews || 0,
+      averageRating: s.averageRating || 0,
+      positiveReviewCount: s.positiveReviewCount || 0,
+      neutralReviewCount: s.neutralReviewCount || 0,
+      negativeReviewCount: s.negativeReviewCount || 0
+    }))
+
+    res.json(enriched)
+  } catch (error) {
+    res.status(500).json({ message: 'Server error' })
+  }
+})
+
+// Get aggregate stats for quick insight retrieval
+router.get('/stats', async (req, res) => {
+  try {
+    const stats = await Series.aggregate([
+      {
+        $group: {
+          _id: null,
+          totalSeries: { $sum: 1 },
+          totalReviews: { $sum: '$totalReviews' },
+          averageRatingOverall: { $avg: '$averageRating' }
+        }
+      }
+    ])
+
+    const feelings = await Series.aggregate([
+      {
+        $group: {
+          _id: null,
+          positiveReviews: { $sum: '$positiveReviewCount' },
+          neutralReviews: { $sum: '$neutralReviewCount' },
+          negativeReviews: { $sum: '$negativeReviewCount' }
+        }
+      }
+    ])
+
+    res.json({ ...stats[0], ...feelings[0] })
   } catch (error) {
     res.status(500).json({ message: 'Server error' })
   }
@@ -148,7 +190,21 @@ router.post('/:id/reviews', auth, async (req, res) => {
     }
 
     series.reviews.push(review)
-    
+
+    // Update precomputed review metrics for fast insight extraction
+    const totalReviews = series.reviews.length
+    const ratingSum = series.reviews.reduce((sum, r) => sum + (r.rating || 0), 0)
+    const avgRating = totalReviews > 0 ? Number((ratingSum / totalReviews).toFixed(2)) : 0
+    const positiveCount = series.reviews.filter(r => r.rating >= 4).length
+    const neutralCount = series.reviews.filter(r => r.rating === 3).length
+    const negativeCount = series.reviews.filter(r => r.rating <= 2).length
+
+    series.totalReviews = totalReviews
+    series.averageRating = avgRating
+    series.positiveReviewCount = positiveCount
+    series.neutralReviewCount = neutralCount
+    series.negativeReviewCount = negativeCount
+
     // Regenerate insights with new review
     const insights = nlpService.generateWhyExplanation(series.reviews)
     series.insights.whyLiked = insights.whyLiked
@@ -156,7 +212,7 @@ router.post('/:id/reviews', auth, async (req, res) => {
     
     await series.save()
 
-    res.status(201).json({ message: 'Review added successfully', analysis })
+    res.status(201).json({ message: 'Review added successfully', analysis, totalReviews, avgRating, positiveCount, neutralCount, negativeCount })
   } catch (error) {
     res.status(500).json({ message: 'Server error' })
   }

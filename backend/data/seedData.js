@@ -78,9 +78,21 @@ const seedDatabase = async () => {
         
         const insights = nlpService.generateWhyExplanation(processedReviews)
         
+        const totalReviews = processedReviews.length
+        const ratingSum = processedReviews.reduce((sum, r) => sum + (r.rating || 0), 0)
+        const averageRating = totalReviews > 0 ? Number((ratingSum / totalReviews).toFixed(2)) : 0
+        const positiveReviewCount = processedReviews.filter(r => r.rating >= 4).length
+        const neutralReviewCount = processedReviews.filter(r => r.rating === 3).length
+        const negativeReviewCount = processedReviews.filter(r => r.rating <= 2).length
+
         const series = new Series({
           ...seriesData,
           reviews: processedReviews,
+          totalReviews,
+          averageRating,
+          positiveReviewCount,
+          neutralReviewCount,
+          negativeReviewCount,
           insights: {
             whyLiked: insights.whyLiked,
             whyDisliked: insights.whyDisliked,

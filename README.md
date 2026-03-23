@@ -26,6 +26,8 @@ The platform processes audience reviews and series metadata to create a comprehe
 - **NLP Processing**: Advanced sentiment analysis and topic extraction
 - **Interactive Visualizations**: Charts, timelines, and data visualizations
 - **Responsive Design**: Complete compatibility across all devices and screen sizes
+- **Fast Review Metrics**: `totalReviews`, `averageRating`, `positiveReviewCount`, `neutralReviewCount`, `negativeReviewCount` are stored directly on series documents for efficient insight scoring
+- **Auth Flow Added**: Full registration and login with JWT support plus protected dashboard access
 
 ## Tech Stack
 
@@ -35,6 +37,8 @@ The platform processes audience reviews and series metadata to create a comprehe
 - **Natural.js** + **Compromise** for NLP
 - **TMDB API** for series data
 - **JWT** authentication
+- **Login/Register endpoints**: `/api/auth/register`, `/api/auth/login`, `/api/auth/me`
+- **Fast series metrics**: `/api/series/stats` for aggregated review statistics
 
 ### Frontend  
 - **React.js** with hooks
@@ -80,6 +84,12 @@ npm run dev
    - View real-time trending web series data fetched from TMDB
    - Browse series by genre, rating, and popularity
    - Click on any series to access detailed AI-powered analysis
+
+4. **Register & Login**
+   - Go to `/register` and create a new account
+   - Once registered, the app logs you in and redirects you to `/dashboard`
+   - Use `/login` to sign in with existing credentials
+   - Dashboard is protected; sign-out clears your token and returns you to guest mode
 
 4. **Analyze series insights**
    - **WHY Insights**: Understand what resonates with audiences through sentiment analysis
